@@ -149,9 +149,19 @@ let lead = {
   source:"ai_chat"
 };
 
-function append(sender,text){
-  const box=document.getElementById("chatBox");
-  box.innerHTML += `<div class="message"><span class="${sender==='You'?'user':'ai'}"><strong>${sender}:</strong></span> ${text}</div>`;
+function append(sender, text){
+  const box = document.getElementById("chatBox");
+
+  let label = sender ? `<strong>${sender}:</strong> ` : "";
+
+  box.innerHTML += `
+    <div class="message">
+      <span class="${sender==='You'?'user':'ai'}">
+        ${label}${text}
+      </span>
+    </div>
+  `;
+
   box.scrollTop = box.scrollHeight;
 }
 
