@@ -152,7 +152,7 @@ let lead = {
 function append(sender, text){
   const box = document.getElementById("chatBox");
 
-  let label = sender ? `<strong>${sender}:</strong> ` : "";
+  let label = sender && sender.trim() !== "" ? `<strong>${sender}:</strong> ` : "";
 
   box.innerHTML += `
     <div class="message">
