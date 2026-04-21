@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -10,60 +9,164 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
-body {font-family:Inter;margin:0;background:#f9fafb;text-align:center;}
-.container {max-width:900px;margin:auto;padding:80px 20px;}
-h1 {font-size:2.8rem;font-weight:800;}
-p {color:#666;}
-.btn {padding:14px 30px;background:#0FA891;color:#fff;border-radius:30px;border:none;cursor:pointer;margin-top:10px;}
-.card {background:#fff;padding:30px;border-radius:12px;margin-top:30px;}
-#chatBox {height:300px;overflow:auto;text-align:left;margin-bottom:10px;}
+body {
+  font-family: Inter;
+  margin:0;
+  background: linear-gradient(135deg, #f9fafb, #eef2f7);
+  display:flex;
+  justify-content:center;
+}
+
+.container {
+  max-width:900px;
+  width:100%;
+  padding:80px 20px;
+  text-align:center;
+}
+
+h1 {
+  font-size:3rem;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.sub {
+  color:#666;
+  margin-bottom:40px;
+}
+
+.card {
+  background:#fff;
+  padding:30px;
+  border-radius:16px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.08);
+  text-align:left;
+}
+
+#chatBox {
+  height:320px;
+  overflow:auto;
+  margin-bottom:20px;
+  padding-right:10px;
+}
+
+.message {
+  margin-bottom:12px;
+  line-height:1.4;
+}
+
+.user {
+  font-weight:600;
+}
+
+.ai {
+  color:#333;
+}
+
+.input-row {
+  display:flex;
+  gap:10px;
+}
+
+input {
+  flex:1;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-size:16px;
+}
+
+button {
+  padding:14px 22px;
+  background:#0FA891;
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.2s;
+}
+
+button:hover {
+  background:#0c8e7a;
+}
+
+.badge {
+  display:inline-block;
+  margin-bottom:15px;
+  padding:6px 12px;
+  background:#e6f7f4;
+  color:#0FA891;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+}
+
+.footer-note {
+  margin-top:15px;
+  font-size:12px;
+  color:#999;
+}
 </style>
 </head>
 
 <body>
 
 <div class="container">
+
+<div class="badge">AI Visibility Tool</div>
+
 <h1>Check Your AI Visibility</h1>
-<p>Ask a question or start below.</p>
+<p class="sub">See if your business is being recommended—or ignored—by AI.</p>
 
 <div class="card">
+
 <div id="chatBox"></div>
 
-<input id="input" placeholder="Type here..." style="width:70%;padding:10px;">
-<button class="btn" onclick="send()">Send</button>
+<div class="input-row">
+<input id="input" placeholder="Type your business or question..." />
+<button onclick="send()">Send</button>
+</div>
 
 <div id="booking" style="display:none;margin-top:20px;">
 <iframe src="https://calendly.com/YOUR-LINK" width="100%" height="500"></iframe>
 </div>
+
+<div class="footer-note">
+No obligation. Takes ~20 minutes.
 </div>
+
+</div>
+
 </div>
 
 <script>
+
 let lead = {
   messages:[],
   score:"yellow",
   source:"ai_chat"
 };
 
+function append(sender,text){
+  const box=document.getElementById("chatBox");
+  box.innerHTML += `<div class="message"><span class="${sender==='You'?'user':'ai'}"><strong>${sender}:</strong></span> ${text}</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
 async function send(){
   const input = document.getElementById("input");
   const msg = input.value;
+
+  if(!msg) return;
 
   append("You", msg);
   lead.messages.push(msg);
   input.value="";
 
-  // Email capture
   if(msg.includes("@") && !lead.email){
     lead.email = msg;
-    append("AI", "Got it. I’ll send your results there.");
-  }
-
-  // Basic capture
-  if(!lead.business){
-    lead.business = msg;
-  } else if(!lead.urgency){
-    lead.urgency = msg;
+    append("AI", "Got it — I’ll send results there.");
   }
 
   const res = await fetch("/api/chat",{
@@ -76,36 +179,8 @@ async function send(){
 
   append("AI", data.reply);
 
-  scoreLead();
-
-  if(
-    msg.toLowerCase().includes("yes") ||
-    msg.toLowerCase().includes("check") ||
-    msg.toLowerCase().includes("book")
-  ){
+  if(msg.toLowerCase().includes("yes") || msg.toLowerCase().includes("check")){
     showBooking();
-  }
-
-  if(lead.email){
-    sendLead();
-  }
-}
-
-function append(sender,text){
-  const box=document.getElementById("chatBox");
-  box.innerHTML+=`<p><strong>${sender}:</strong> ${text}</p>`;
-  box.scrollTop=box.scrollHeight;
-}
-
-function scoreLead(){
-  if(
-    lead.business?.toLowerCase().includes("plumb") ||
-    lead.business?.toLowerCase().includes("hvac") ||
-    lead.urgency?.toLowerCase().includes("asap")
-  ){
-    lead.score="green";
-  } else if(lead.urgency?.toLowerCase().includes("exploring")){
-    lead.score="red";
   }
 }
 
@@ -114,16 +189,9 @@ function showBooking(){
   document.getElementById("booking").style.display="block";
 }
 
-function sendLead(){
-  fetch("https://hooks.zapier.com/hooks/catch/XXXX",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      ...lead,
-      timestamp:new Date().toISOString()
-    })
-  });
-}
+// 🔥 Starter message (makes it feel alive)
+append("AI", "Quick question—have you ever checked if your business shows up when someone asks ChatGPT who to hire?");
+
 </script>
 
 </body>
