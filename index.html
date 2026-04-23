@@ -164,7 +164,54 @@ function append(sender, text){
 
   box.scrollTop = box.scrollHeight;
 }
+let step = 0;
 
+function nextStep(userInput) {
+  step++;
+
+  // STEP 1: Ask business type
+  if (step === 1) {
+    append(null, "Got it. What type of business are you? (Plumber, HVAC, salon, etc.)");
+  }
+
+  // STEP 2: Ask location
+  else if (step === 2) {
+    lead.businessType = userInput;
+    append(null, "And what city are you in?");
+  }
+
+  // STEP 3: Run “AI check” framing
+  else if (step === 3) {
+    lead.city = userInput;
+
+    append(null, `Alright - if someone searches "best ${lead.businessType} in ${lead.city}" in ChatGPT...`);
+
+setTimeout(() => {
+  append(null, "You either show up... or your competitors do.");
+}, 1200);
+
+setTimeout(() => {
+  append(null, "Let me run a quick AI visibility check...");
+}, 2400);
+
+setTimeout(() => {
+  append(null, "Most businesses I check are missing from AI results—and they don’t even know it.");
+}, 3600);
+
+setTimeout(() => {
+  append(null, "This is exactly what I walk through on the Snapshot call.");
+}, 4800);
+
+setTimeout(() => {
+  append(null, "It takes about 20 minutes and you'll see exactly where you stand.");
+}, 6000);
+
+setTimeout(() => {
+  showBooking();
+}, 7200);
+   
+  }
+}
 async function send(){
   const input = document.getElementById("input");
   const msg = input.value;
@@ -173,6 +220,7 @@ async function send(){
 
   append("You", msg);
   lead.messages.push(msg);
+  nextStep(msg);
   input.value="";
 
   if(msg.includes("@") && !lead.email){
